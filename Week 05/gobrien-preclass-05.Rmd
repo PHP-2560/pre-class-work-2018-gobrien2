@@ -1,0 +1,54 @@
+---
+title: "Gobrien Week 5"
+output: html_document
+---
+Reading in the dataset
+```{r}
+library(foreign)
+wcgs <- read.dta("https://drive.google.com/uc?export=download&id=0B8CsRLdwqzbzYWxfN3ExQllBQkU")
+```
+
+Question 1: Standardize Function
+A. Create a function called standardize.me() that takes a numeric vector as an argument, and returns the standardized version of the vector. 
+```{r}
+standardize.me <- function(x){
+  for (i in x){
+    abs(i -mean(x))/sd(x)
+  }
+}
+```
+B. Assign all the numeric columns of the original WCGS dataset to a new dataset called WCGS.new. 
+```{r}
+WCGS.new_temp <- unlist(lapply(wcgs, is.numeric))
+WCGS.new <- wcgs[, WCGS.new_temp]
+```
+
+C. Using a loop and your new function, standardize all the variables WCGS.new dataset.
+```{r}
+for (x in ncol(WCGS.new)){
+  standardize.me(x)
+}
+```
+D. What should the mean and standard deviation of all your new standardized variables be? Test your prediction by running a loop
+```{r}
+for (x in ncol(WCGS.new)){
+  mean(x)
+  sd(x)
+}
+```
+Mean should be 1 and standard deviation should be 0. 
+
+Question 2: Looping to Calculate
+A. Using a loop, calculate the mean weight of the subjects separated by the type of CHD they have. 
+```{r}
+for (x in wcgs){
+  mean(wcgs$weight, by= "typechd69")
+  
+}
+```
+
+B. Now do the same thing, but now don't use a loop
+```{r}
+factor_means <- by(wcgs$weight, wcgs$typchd69, mean)
+factor_means
+```
