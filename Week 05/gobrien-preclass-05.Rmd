@@ -13,7 +13,7 @@ A. Create a function called standardize.me() that takes a numeric vector as an a
 ```{r}
 standardize.me <- function(x){
   for (i in x){
-    abs(i -mean(x))/sd(x)
+    (i -mean(x))/sd(x)
   }
 }
 ```
