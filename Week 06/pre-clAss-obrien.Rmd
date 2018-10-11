@@ -1,4 +1,4 @@
-# pre-class
+# Grace pre-class
 
 
 Make sure you commit this often with meaningful messages. 
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 1. Read the source code for each of the following three functions, puzzle out what they do, and then brainstorm better names.
 
-```
+```{r}
 f1 <- function(string, prefix) {
   substr(string, 1, nchar(prefix)) == prefix
 }
@@ -23,13 +23,44 @@ f2 <- function(x) {
 f3 <- function(x, y) {
   rep(y, length.out = length(x))
 }
+#Testing f1
+df <- c("lets", "go")
+d <- "le"
+f1(df, d)
+#Testing f2
+p <- c(1,2,4, 3)
+q <- 2
+f2(q)
+f2(p)
+#Testing f3
+f3(c(1,2,3,5,6,8), c(20, 19))
+f3(c(19 ,19), c(1,2,3,5,6,8))
 ```
-
+f1 rename prefix. It returns TRUE or FALSE if the prefix is in the string. 
+f2 rename removelastobs. If vector has length of one or less, return NULL. Else, remove last observation in the vector. 
+f3 rename samelength. It makes the second argument have the same length as the first argument in the function.
 2. Compare and contrast rnorm() and MASS::mvrnorm(). How could you make them more consistent?
-
+```{r}
+?rnorm()
+?MASS::mvrnorm()
+```
+rnorm samples from the univariate normal distribution. Its arguments are n, mean, sd.
+MASS::mvrnorm samples from the multivariate normal distribution. Its arguments are n, mu, sigma.
+To make them more consistent, they should have the same argument names. Sd does not, however, make sense for multivariate models. Therefore, I think it is ok for the different names because they accomplish the same thing from differing samples. 
 
 3. Use `lapply()` and an anonymous function to find the coefficient of variation (the standard deviation divided by the mean) for all columns in the mtcars dataset. 
-
+```{r}
+anon <- function(x){
+  sd(x)/mean(x)
+}
+lapply(ncol(mtcars), anon)
+```
 4. Use vapply() to:
     a. Compute the standard deviation of every column in a numeric data frame.
+    ```{r}
+    vapply(x, sd)
+    ```
     b. Compute the standard deviation of every numeric column in a mixed data frame. (Hint: you’ll need to use vapply() twice.)
+    ```{r}
+    vapply(vapply(x, as.numeric), sd)
+    ```
