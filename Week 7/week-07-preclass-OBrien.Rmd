@@ -1,5 +1,5 @@
 ---
-title: "Simulations Pre-Class Project"
+title: "Grace O'Brien Simulations Pre-Class Project"
 date: "Due March 13, 2017 at 5:00pm"
 output:
   html_document
@@ -29,16 +29,236 @@ options(scipen = 3, digits = 3)
 
 With this project we will simulate a famoues probability problem. This will not require knowledge of probability or statistics but only the logic to follow the steps in order to simulate this problem. This is one way to solve problems by using the computer. 
 
- 1. **Gambler's Ruin**: Suppose you have a bankroll of $1000 and make bets of $100 on a fair game. By simulating the outcome directly for at most 5000 iterations of the game (or hands), estimate:
-    a. the probability that you have "busted" (lost all your money) by the time you have placed your one hundredth bet. 
-    b. the probability that you have busted by the time you have placed your five hundredth bet by simulating the outcome directly. 
-    c. the mean time you go bust, given that you go bust within the first 5000 hands.
-    d. the mean and variance of your bankroll after 100 hands (including busts).
-    e. the mean and variance of your bankroll after 500 hands (including busts).
- 
-Note: you *must* stop playing if your player has gone bust. How will you handle this in the `for` loop?
+ 1.  Suppose you have a bankroll of $1000 and make bets of $100 on a fair game. By simulating the outcome directly for at most 5000 iterations of the game (or hands), estimate:
 
+```{r}
+set.seed(1)
+gamble <- function(bet,bankroll,p){
+    k=0
+  while(bet>0) {
+    ProbVal=runif(1)
+    if(ProbVal <= p)
+    {
+      bankroll = bet + bankroll
+      bet = (bet + bankroll)*0.1
+    }else{
+      bankroll = bankroll-bet
+      bet = bet
+      }
+    k=k+1
+    if(bankroll < bet){break}
+  }
+  duration = k
+  return(duration)
+}
+
+durations = numeric()
+s = 5000
+for(i in 1:s)
+{
+  nextd = gamble(100,900,0.5)
+  durations = c(durations,nextd)
+}
+```
+    a. the probability that you have "busted" (lost all your money) by the time you have placed your one hundredth bet. 
+    ```{r}
+a=length(durations)
+b=length(which(durations<=100))
+prob=b/a
+prob
+    ```
+    Probability that lost all money by 100th bet is 0.12.
+    b. the probability that you have busted by the time you have placed your five hundredth bet by simulating the outcome directly. 
+    ```{r}
+    a=length(durations)
+b=length(which(durations<=500))
+prob=b/a
+prob
+    ```
+    Probability that lost all money by 500th bet is 0.477.
+    c. the mean time you go bust, given that you go bust within the first 5000 hands.
+    ```{r}
+    a=durations[which(durations<=5000)]
+mean=mean(a)
+mean
+    ```
+    Mean time is 758 to bust given that you go bust within first 5000 hands. 
+    d. the mean and variance of your bankroll after 100 hands (including busts).
+    ```{r}
+    set.seed(1)
+GR1=function(bet,bankroll,p)
+{
+  k=0
+  while(bet>0) {
+    ProbVal=runif(1)
+    if(ProbVal <= p)
+    {
+      bankroll = bet + bankroll
+      bet = (bet + bankroll)*0.1
+    }else{
+      bankroll = bankroll-bet
+      bet = bet
+      }
+    k=k+1
+    if(k ==100){break}
+    if(bankroll<bet){break}
+  }
+  duration = k
+  return(bankroll)
+  
+}
+
+bankroll=numeric()
+s = 5000
+for(i in 1:s)
+{
+  nextb = GR1(100,900,0.5)
+  bankroll=c(bankroll,nextb)
+}
+
+mean(bankroll)
+var(bankroll)
+    ```
+    Mean time is 879 with variance of 2716298.
+    e. the mean and variance of your bankroll after 500 hands (including busts).
+    ```{r}
+    set.seed(1)
+GR2=function(bet,bankroll,p)
+{
+  k=0
+  while(bet>0) {
+    ProbVal=runif(1)
+    if(ProbVal <= p)
+    {
+      bankroll = bet + bankroll
+      bet = (bet + bankroll)*0.1
+    }else{
+      bankroll = bankroll-bet
+      bet = bet
+      }
+    k=k+1
+    if(k ==500){break}
+    if(bankroll< bet){break}
+  }
+  duration = k
+  return(bankroll)
+  
+}
+
+bankroll=numeric()
+s = 5000
+for(i in 1:s)
+{
+  nextb = GR2(100,900,0.5)
+  bankroll=c(bankroll,nextb)
+}
+
+mean(bankroll)
+var(bankroll)
+    ```
+    Mean time of 536 with variance of 19437196.
+Note: you *must* stop playing if your player has gone bust. How will you handle this in the `for` loop?
+Add {break} statements.
 2. **Markov Chains**. Suppose you have a game where the probability of winning on your first hand is 48%; each time you win, that probability goes up by one percentage point for the next game (to a maximum of 100%, where it must stay), and each time you lose, it goes back down to 48%. Assume you cannot go bust and that the size of your wager is a constant $100.
     a. Is this a fair game? Simulate one hundred thousand sequential hands to determine the size of your return. Then repeat this simulation 99 more times to get a range of values to calculate the expectation.
+    ```{r}
+    MC=function(bet,bankroll,p)
+{
+  k=0
+  prob<-p
+  while(bet>0) {
+    ProbVal=runif(1)
+    if(ProbVal <= p)
+    {
+      bankroll = bankroll +bet
+      p = p+0.01
+    }else{
+      bankroll = bankroll-bet
+      p = prob
+    }
+    k=k+1
+    if(k==100000){break}
+    if(bankroll < bet){break}
+  }
+  return(bankroll)
+}
+
+size = numeric()
+s = 100
+for(i in 1:s)
+{
+  nextb = MC(100,900,0.48)
+  size = c(size,nextb)
+}
+mean(size)
+    ```
+    Mean size is zero. This is not a fair game. 
     b. Repeat this process but change the starting probability to a new value within 2% either way. Get the expected return after 100 repetitions. Keep exploring until you have a return value that is as fair as you can make it. Can you do this automatically?
+    ```{r}
+    set.seed(1)
+proportion=numeric()
+for (j in 1:20){
+  size=numeric()
+  s = 100
+for(i in 1:s)
+{
+  nextb = MC(100,900,0.46+0.002*j)
+  size = c(size,nextb)
+}
+  nextproportion=length(which(size==0))/100
+  proportion=c(proportion,nextproportion)
+}
+proportion
+    ```
+    0.05 starting probability returns the most fair game.
     c. Repeat again, keeping the initial probability at 48%, but this time change the probability increment to a value different from 1%. Get the expected return after 100 repetitions. Keep changing this value until you have a return value that is as fair as you can make it. 
+    ```{r}
+    set.seed(1)
+MC1=function(bet,bankroll,p,increment)
+{
+  k=0
+  prob<-p
+  while(bet>0) {
+    ProbVal=runif(1)
+    if(ProbVal <= p)
+    {
+      bankroll = bankroll +bet
+      p = p+increment
+    }else{
+      bankroll = bankroll-bet
+      p = prob
+    }
+    k=k+1
+    if(k==100000){break}
+    if(bankroll < bet){break}
+  }
+  return(bankroll)
+}
+
+proportion = numeric()
+for (z in 1:20){
+size=numeric()
+s = 100
+for(i in 1:s)
+{
+  nextb = MC1(100,900,0.48,0.002*z)
+  size = c(size,nextb)
+}
+nextproportion=length(which(size==0))/100
+proportion=c(proportion,nextproportion)
+}
+proportion
+    ```
+    0.035 probability increment allows for the proportion to return as 0.5, the fairest possible game. 
+© 2018 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
